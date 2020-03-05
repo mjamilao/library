@@ -17,4 +17,11 @@ class Book extends Model
         //if you decided to have a slug /books/1-Maverick
         //return '/books/' . $this->id . '-' . Str::slug($this->title);
     }
+
+    public function setAuthorIdAttribute($author)
+    {
+        $this->attributes['author_id'] = (Author::firstOrCreate([
+            'name' => $author,
+        ]))->id;
+    }
 }
