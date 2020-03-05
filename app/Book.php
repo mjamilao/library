@@ -24,4 +24,45 @@ class Book extends Model
             'name' => $author,
         ]))->id;
     }
+    //this make sure that the $user is a type of User to lockdown
+    public function checkout(User $user){
+        /*Reservation::create([
+
+        ]);*/
+        // or make a relationship
+
+        $this->reservations()->create([
+           'user_id' => $user->id,
+            'checked_out_at' => now(),
+        ]);
+    }
+
+    public function checkin(User $user)
+    {
+        //null does not match expected type object
+
+        //get the reservation
+        $reservation = $this->reservations()->where('user_id', $user->id)
+            ->whereNotNull('checked_out_at')
+            ->whereNull('checked_in_at')
+            ->first();
+
+        //dd($reservation) == null;
+        if(is_null($reservation)){
+            throw new \Exception();
+        }
+
+        //put a time in the check_in_at if na uli na niya
+        $reservation->update([
+           'checked_in_at' => now(),
+        ]);
+    }
+
+    public function reservations()
+    {
+        // a book has many reservations
+        // a reservation belongs to a book and a user
+
+        return $this->hasMany(Reservation::class);
+    }
 }
